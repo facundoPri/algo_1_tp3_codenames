@@ -40,8 +40,8 @@ class Juego:
         if len(self.jugadores) < self.jugadores_min:
             raise Exception("Se requieren mas jugadores para jugar")
         # Generar equipos
-        equipo_rojo = Equipo()
-        equipo_azul = Equipo()
+        equipo_rojo = Equipo("rojo")
+        equipo_azul = Equipo("azul")
         self.generar_equipos()
         self.equipos = [equipo_rojo, equipo_azul]
         # Inicializar juego
@@ -82,7 +82,8 @@ class Juego:
 
 
 class Equipo:
-    def __init__(self):
+    def __init__(self, nombre):
+        self.nombre = nombre
         self.jugadores = []
         self.para_spymaster = []
         self.puntos = 0
