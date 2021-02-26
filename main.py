@@ -81,6 +81,20 @@ class Juego:
         cartas = self.cartas
         self.tablero = [[cartas.pop() for x in cartas[:5]] for x in range(5)]
 
+    def generar_llave(self):
+        """Genera una llave y el primer turno"""
+        # Elige un equpo para arrancar
+        equipo = random.choice(self.equipos)
+        self.turno = equipo
+        # Generar llave
+        rojo = ["rojo"] * (9 if equipo.nombre == "rojo" else 8)
+        azul = ["azul"] * (9 if equipo.nombre == "azul" else 8)
+        asesino = ["asesino"]
+        resto = 25 - (len(rojo) + len(azul) + len(asesino))
+        civil = ["civil"] * resto
+        lista_agentes = rojo + azul + asesino + civil
+        agentes = random.sample(lista_agentes, 25)
+        self.llave = [[agentes.pop() for x in agentes[:5]] for x in range(5)]
 
 class Equipo:
     def __init__(self, nombre):
