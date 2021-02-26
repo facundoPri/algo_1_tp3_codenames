@@ -65,7 +65,7 @@ class Juego:
         equipo_rojo.agregar_jugadores(equipo_random[0])
         equipo_azul.agregar_jugadores(equipo_random[1])
 
-    def optener_cartar(self, ruta):
+    def obtener_cartar(self, ruta):
         """Busca en la ruta pasada 25 cartas de forma aleatoria"""
         lista_cartas = []
         with open(ruta) as cartas:
