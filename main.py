@@ -72,7 +72,7 @@ class Juego:
             for carta in cartas:
                 if len(carta) > 8:
                     continue
-                lista_cartas.append(carta.upper().replace("\n", ""))
+                lista_cartas.append(carta.upper())
         self.cartas = random.sample(lista_cartas, 25)
 
     def generar_tablero(self):
