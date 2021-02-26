@@ -115,6 +115,13 @@ class Juego:
         index_tramposo = self.equipos.index(self.turno)
         otro_equipo = self.equipos[1 if index_tramposo == 0 else 0]
         # TODO: agarrar una de las cartas faltantes del equipo y pasarsela a encontradas
+
+    def siguiente_turno(self):
+        """Cambia el turno para el proximo equipo"""
+        index = self.equipos.index(self.turno)
+        self.turno = self.equipos[1 if index == 0 else 0]
+
+
 class Equipo:
     def __init__(self, nombre):
         self.nombre = nombre
