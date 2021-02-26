@@ -109,6 +109,12 @@ class Juego:
         """Devuelve un booleano diciendo si la ultima pista pasada es valida o no"""
         # TODO: Mejorar validacion
         return ultima_pista[0] in cartas
+
+    def penalizar(self):
+        """En caso de trampa se le otorgara una carta al azar al proximo equipo"""
+        index_tramposo = self.equipos.index(self.turno)
+        otro_equipo = self.equipos[1 if index_tramposo == 0 else 0]
+        # TODO: agarrar una de las cartas faltantes del equipo y pasarsela a encontradas
 class Equipo:
     def __init__(self, nombre):
         self.nombre = nombre
@@ -118,6 +124,9 @@ class Equipo:
         self.victorias = 0
         self.spymaster = ""
         self.pistas = []
+        self.cartas_totales = 0
+        self.cartas_faltantes = []
+        self.cartas_encontradas = []
 
     def agregar_jugadores(self, jugadores):
         """Recibe una lista de jugadores y los agrega al equipo"""
