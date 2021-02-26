@@ -85,7 +85,7 @@ class Equipo:
     def __init__(self, nombre):
         self.nombre = nombre
         self.jugadores = []
-        self.para_spymaster = []
+        self.futuros_spymaster = []
         self.puntos = 0
         self.victorias = 0
         self.spymaster = ""
@@ -98,8 +98,8 @@ class Equipo:
 
     def elegir_spymaster(self):
         """Elije de manera random un spymaster de la lista que no fue todavia"""
-        nuevo_spymaster = random.choice(self.para_spymaster)
-        self.para_spymaster.remove(nuevo_spymaster)
+        nuevo_spymaster = random.choice(self.futuros_spymaster)
+        self.futuros_spymaster.remove(nuevo_spymaster)
         self.spymaster = nuevo_spymaster
 
     def agregar_puntos(self):
