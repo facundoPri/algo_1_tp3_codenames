@@ -26,7 +26,8 @@ TABLERO_ALTO = 5
 
 class Juego:
     def __init__(self):
-        self.terminado = True
+        self.terminado = False
+        self.ronda_terminada = False
         self.tablero = [["" for x in range(TABLERO_ANCHO)] for x in range(TABLERO_ALTO)]
         self.llave = [["" for x in range(TABLERO_ANCHO)] for x in range(TABLERO_ALTO)]
         self.equipos = []
