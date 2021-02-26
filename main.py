@@ -5,23 +5,22 @@ TABLERO_ANCHO = 5
 TABLERO_ALTO = 5
 
 
-# def main():
-#     juego = inicializar_juego()
-#     while not juego.terminado():
-#         mostrar_estado_juego(juego)
-#         juego.generar_tablero()
-#         juego.generar_llave()
-#         juego.seleccionar_spymaster()
-#         while not juego.ronda_terminada():
-#             mostrar_estado_juego(juego)
-#             if juego.turno() == spymaster:
-#                 juego.pedir_pista()
-#                 if not juego.pista_es_valida():
-#                     juego.penalizar()
-#             else:
-#                 # Pedir agente hasta equivocarse o hasta que se terminen las chances
-#                 juego.pedir_agente()
-#     mostrar_ganador(juego)
+def main():
+    juego = Juego()
+    juego.iniciar()
+    while not juego.terminado():
+        # mostrar_estado_juego(juego)
+        juego.generar_tablero()
+        juego.generar_llave()
+        juego.seleccionar_spymaster()
+        while not juego.ronda_terminada():
+            # mostrar_estado_juego(juego)
+            juego.pedir_pista()
+            if not juego.pista_es_valida():
+                juego.penalizar()
+            # Pedir agente hasta equivocarse o hasta que se terminen las chances
+            juego.pedir_agente()
+    # mostrar_ganador(juego)
 
 
 class Juego:
