@@ -32,6 +32,7 @@ class Juego:
         self.llave = [["" for x in range(TABLERO_ANCHO)] for x in range(TABLERO_ALTO)]
         self.equipos = []
         self.turno = ""
+        self.ultima_pista = ()
         self.cartas = []
         self.jugadores = []
         self.jugadores_min = 4
@@ -96,6 +97,18 @@ class Juego:
         agentes = random.sample(lista_agentes, 25)
         self.llave = [[agentes.pop() for x in agentes[:5]] for x in range(5)]
 
+    def pedir_pista(self, pista):
+        """Recibe una pista en formato de (string, numero) y la agrega en el juego para ser validada y la lista del equipo"""
+        if not type(pista[0]) == "str" or not type(pista[1]) == "int":
+            raise Exception("Pista no tiene formato valido")
+        self.ultima_pista = pista
+        # Agrega la pista al equipo que le corresponde el turno
+        self.turno.pistas.append(pista)
+
+    def pista_es_valida(self):
+        """Devuelve un booleano diciendo si la ultima pista pasada es valida o no"""
+        # TODO: Mejorar validacion
+        return ultima_pista[0] in cartas
 class Equipo:
     def __init__(self, nombre):
         self.nombre = nombre
