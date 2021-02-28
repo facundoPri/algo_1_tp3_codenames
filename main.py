@@ -157,7 +157,7 @@ class Juego:
         valor = self.llave[y][x]
         tarjeta = self.tablero[y][x]
         self.tablero[y][x] = ""
-        self.puntuar_equipo(valor)
+        self.puntuar_equipo(valor, tarjeta)
         self.ultima_pista[1] -= 1
 
     def puntuar_equipo(self, valor, tarjeta):
@@ -171,7 +171,7 @@ class Juego:
             if self.turno.tarjetas_totales == len(self.turno.tarjetas_encontradas):
                 self.finalizar_rondas()
             if self.ultima_pista[1] == 0:
-                self.siguiente_turnto()
+                self.siguiente_turno()
         elif valor == "asesino":
             # menor 5 puntos y termina juego
             print(valor)
@@ -195,7 +195,7 @@ class Juego:
 
     def seleccionar_spymaster(self):
         """Seleccionar un spymaster para cada equipo"""
-        for equipo in self.equipo:
+        for equipo in self.equipos:
             equipo.elegir_spymaster()
 
     def inicializar_rondas(self):

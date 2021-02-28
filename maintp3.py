@@ -155,9 +155,8 @@ class Juego:
 		lista_tarjetas = []
 		with open(ruta) as tarjetas:
 			for tarjeta in tarjetas:
-				if len(tarjeta) > 8 and tarjeta in lista_tarjetas:
-					continue
-				lista_tarjetas.append(tarjeta.upper().rstrip())
+				if not len(tarjeta) > 8 and not tarjeta in lista_tarjetas:
+					lista_tarjetas.append(tarjeta.upper().rstrip())
 		self.tarjetas = random.sample(lista_tarjetas, 25)
 
 	def generar_tablero(self):
@@ -184,13 +183,8 @@ class Juego:
 	def pedir_pista(self):
 		"""Recibe una pista en formato de (string, numero) y la agrega en el juego para ser validada y la lista del equipo"""
 		pista = gamelib.input("pone pista")
-		print(pista)
 		pista = pista.split()
-		print(pista)
 		pista[1] = int(pista[1])
-		print(pista)
-		print(type(pista[0]) == str)
-		print(type(pista[1]))
 		if not type(pista[0]) == str or not type(pista[1]) == int:
 			raise Exception("Pista no tiene formato valido")
 		self.ultima_pista = pista
@@ -313,6 +307,7 @@ class Equipo:
 		"""Recibe una tarjeta, la resta de tarjetas faltantes y la agrega a encontradas"""
 		if tarjeta in self.tarjetas_encontradas:
 			raise Exception("La tarjeta ya fue encontrada")
+		print(self.tarjetas_faltantes)
 		index_tarjeta = self.tarjetas_faltantes.index(tarjeta)
 		if index_tarjeta >= 0:
 			self.tarjetas_faltantes.pop(index_tarjeta)
