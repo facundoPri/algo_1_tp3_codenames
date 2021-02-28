@@ -122,7 +122,7 @@ class Juego:
     def pista_es_valida(self):
         """Devuelve un booleano diciendo si la ultima pista pasada es valida o no"""
         # TODO: Mejorar validacion
-        trampa = ultima_pista[0] in self.tarjetas
+        trampa = self.ultima_pista[0] in self.tarjetas
         if not trampa:
             self.seguir_turno = True
         return trampa
