@@ -48,8 +48,9 @@ def main():
 		while not juego.ronda_terminada:
 			print(f"Turno de equipo {juego.turno.nombre}")
 			# TODO: descomentar
-			# pista = gamelib.input("Ingresar pista:")
-			pista = "hola 1"
+			mostrar_llave(juego)
+			pista = gamelib.input("Ingresar pista:")
+			#pista = "hola 1"
 			pista = pista.split()
 			pista[0] = pista[0].upper()
 			pista[1] = int(pista[1])
@@ -60,6 +61,7 @@ def main():
 			while not juego.pasar_turno:
 				mostrar_estado_juego(juego)
 				juego.pedir_agente(esperar_eleccion())
+				mostrar_estado_juego(juego)
 	mostrar_ganador(juego)
 
 def mostrar_estado_juego(juego):
@@ -182,10 +184,10 @@ def mostrar_aciertos(juego):
 				genero = random.choice(('m', 'f'))
 				
 				if indice <= 3:
-					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + indice * STEP_X_TARJETA, Y_ACIERTOS_AZUL)
+					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + indice * (SEP_TARJETA + STEP_X_TARJETA), Y_ACIERTOS_AZUL)
 				
 				else:
-					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * STEP_X_TARJETA, Y_ACIERTOS_AZUL + STEP_Y_TARJETA)
+					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * (SEP_TARJETA + STEP_X_TARJETA), Y_ACIERTOS_AZUL + SEP_TARJETA + STEP_Y_TARJETA)
 
 def mostrar_puntaje(juego):
 	for indice, equipo in enumerate(juego.equipos):
