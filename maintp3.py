@@ -20,32 +20,34 @@ X_BOTON_PASAR, Y_BOTON_PASAR = 509, 20
 X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 35
 X_TEXTO_TARJETA_INV, Y_TEXTO_TARJETA_INV = 13, 15
 X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
+X_TEXTO_GANADOR, Y_TEXTO_GANADOR = 450, 150
+X_TEXTO_GANADOR_SALIDA, Y_TEXTO_GANADOR_SALIDA = 330, 600
 X_SLOT_LLAVE, Y_SLOT_LLAVE = 31, 28
 STEP_X_TARJETA, STEP_Y_TARJETA = 80, 50
 STEP_X_SLOT, STEP_Y_SLOT = 40, 40
 STEP_PUNTAJE = 1260
 SEP_TARJETA = 4
 
-
 def main():
-    juego = Juego()
-    juego.iniciar()
-    gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
-    while gamelib.is_alive() and not juego.terminado:
-        gamelib.draw_begin()
-        juego.obtener_tarjetas("cartas.txt")
-        juego.generar_tablero()
-        juego.generar_llave()
-        mostrar_estado_juego(juego)
-        mostrar_llave(juego)
-        while not juego.ronda_terminada:
-            juego.pedir_pista()
-            # if not juego.pista_es_valida():
-            # juego.penalizar()
-            # Pedir agente hasta equivocarse o hasta que se terminen las chances
-            # while juego.seguir_turno:
-            juego.pedir_agente(esperar_eleccion())
-    # mostrar_ganador(juego)
+
+	juego = Juego()
+	juego.iniciar()
+	gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
+	while gamelib.is_alive() and not juego.terminado:
+		gamelib.draw_begin()
+		juego.obtener_tarjetas('cartas.txt')
+		juego.generar_tablero()
+		juego.generar_llave()
+		mostrar_estado_juego(juego)
+		mostrar_llave(juego)
+		while not juego.ronda_terminada:
+			juego.pedir_pista()
+			#if not juego.pista_es_valida():
+				#juego.penalizar()
+			# Pedir agente hasta equivocarse o hasta que se terminen las chances
+			#while juego.seguir_turno:
+			juego.pedir_agente(esperar_eleccion())
+	mostrar_ganador(juego)
 
 
 def mostrar_estado_juego(juego):
@@ -169,7 +171,35 @@ def mostrar_puntaje(juego):
 			gamelib.draw_text(f"Puntaje equipo {equipo.nombre}: {str(puntaje)}", X_PUNTAJE + indice * STEP_PUNTAJE, Y_PUNTAJE, anchor = 'w', fill = "red", size = 25)
 		else:
 			gamelib.draw_text(f"Puntaje equipo {equipo.nombre}: {str(puntaje)}", X_PUNTAJE + indice * STEP_PUNTAJE, Y_PUNTAJE, anchor = 'e', fill = "blue", size = 25)
-		
+
+def mostrar_ganador(juego):
+	ganador = ""
+	puntajes = []
+
+	for equipo in juego.equipos:
+		puntajes.append(equipo.puntos)
+	for equipo in juego.equipos:
+		if equipo.puntos == max(puntajes):
+			ganador = equipo.nombre
+
+	while gamelib.is_alive():
+
+		gamelib.draw_begin()
+		gamelib.draw_image("imagenes/fondoganador.gif", X_FONDO, Y_FONDO)
+		gamelib.draw_text(f"El equipo {ganador} es el ganador!\nPuntaje final: {str(max(puntajes))}", X_TEXTO_GANADOR, Y_TEXTO_GANADOR, fill = 'gray', size = 50, justify = 'c')
+		gamelib.draw_text('Presiona cualquier tecla para salir', X_TEXTO_GANADOR_SALIDA, Y_TEXTO_GANADOR_SALIDA, fill = 'gray', size = 30)
+		gamelib.draw_end()
+
+		ev = gamelib.wait(gamelib.EventType.KeyPress)
+
+		if not ev:
+			break
+		if ev.type == gamelib.EventType.KeyPress:
+			break
+
+
+
+
 
 
 
