@@ -73,14 +73,13 @@ class Juego:
         equipo_rojo.agregar_jugadores(equipo_random[0])
         equipo_azul.agregar_jugadores(equipo_random[1])
 
-    def obtener_cartar(self, ruta):
+    def obtener_cartas(self, ruta):
         """Busca en la ruta pasada 25 cartas de forma aleatoria"""
         lista_cartas = []
         with open(ruta) as cartas:
             for carta in cartas:
-                if len(carta) > 8 and carta in lista_cartas:
-                    continue
-                lista_cartas.append(carta.upper())
+                if not len(carta) > 8 and not carta in lista_cartas:
+                    lista_cartas.append(carta.upper())
         self.cartas = random.sample(lista_cartas, 25)
 
     def generar_tablero(self):
