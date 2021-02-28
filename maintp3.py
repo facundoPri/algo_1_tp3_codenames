@@ -4,8 +4,10 @@ import gamelib
 TABLERO_ANCHO = 5
 TABLERO_ALTO = 5
 LIMITE_CARACTERES = 8
+FILAS_ACIERTOS = 4
 ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
 X_FONDO, Y_FONDO = 1, 1
+X_PUNTAJE, Y_PUNTAJE = 10, 20
 X_TABLERO, Y_TABLERO = 434, 160
 X_ACIERTOS_ROJO, Y_ACIERTOS_ROJO = 173, 528
 X_ACIERTOS_AZUL, Y_ACIERTOS_AZUL = 780, 528
@@ -21,6 +23,7 @@ X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
 X_SLOT_LLAVE, Y_SLOT_LLAVE = 31, 28
 STEP_X_TARJETA, STEP_Y_TARJETA = 80, 50
 STEP_X_SLOT, STEP_Y_SLOT = 40, 40
+STEP_PUNTAJE = 1260
 SEP_TARJETA = 4
 
 
@@ -51,12 +54,18 @@ def main():
 def mostrar_estado_juego(juego):
 	mostrar_fondo()
 	mostrar_tablero(juego)
+	mostrar_aciertos(juego)
+	actualizar_tablero(juego)
+	mostrar_puntaje(juego)
+
+def actualizar_tablero(juego):
 	for indice_fil, fil in enumerate(juego.tablero):
 		for indice_col, col in enumerate(fil):
 			if col == "":
 				genero = random.choice(('m', 'f'))
 				elemento = juego.llave[indice_fil][indice_col]
 				gamelib.draw_image(f"imagenes/tarjeta{elemento}{genero}.gif", X_LLAVE + indice_col * STEP_X_SLOT, Y_LLAVE + indice_fil * STEP_Y_SLOT)
+	
 
 def mostrar_fondo():
 	gamelib.draw_image("imagenes/fondo.gif",1,1)
@@ -87,10 +96,40 @@ def mostrar_pistas(juego):
 def mostrar_llave(juego):
 	"""Funcion que recibe el estado del juego y muestra la llave del juego"""
 	gamelib.draw_image(f"imagenes/llave{juego.primer_equipo.nombre}.gif", X_LLAVE, Y_LLAVE)
-	print(juego.llave)
 	for indice_fil, fil in enumerate(juego.llave):
-		for indice_col, col in enumerate(fil):
-			gamelib.draw_image(f"imagenes/slot{col}.gif", X_LLAVE + X_SLOT_LLAVE + indice_col * STEP_X_SLOT, Y_LLAVE + Y_SLOT_LLAVE + indice_fil * STEP_Y_SLOT)
+		for indice_col, elemento in enumerate(fil):
+			gamelib.draw_image(f"imagenes/slot{elemento}.gif", X_LLAVE + X_SLOT_LLAVE + indice_col * STEP_X_SLOT, Y_LLAVE + Y_SLOT_LLAVE + indice_fil * STEP_Y_SLOT)
+
+def mostrar_aciertos(juego):
+	for equipo in juego.equipos:
+		if equipo.nombre == "rojo":
+			for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
+				genero = random.choice(('m', 'f'))
+				
+				if indice <= 3:
+					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_ROJO + indice * STEP_X_TARJETA, Y_ACIERTOS_ROJO)
+				
+				else:
+					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_ROJO + (indice - FILAS_ACIERTOS) * STEP_X_TARJETA, Y_ACIERTOS_ROJO + STEP_Y_TARJETA)
+
+		else:
+			for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
+				genero = random.choice(('m', 'f'))
+				
+				if indice <= 3:
+					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + indice * STEP_X_TARJETA, Y_ACIERTOS_AZUL)
+				
+				else:
+					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * STEP_X_TARJETA, Y_ACIERTOS_AZUL + STEP_Y_TARJETA)
+
+def mostrar_puntaje(juego):
+	for indice, equipo in enumerate(juego.equipos):
+		puntaje = equipo.puntos
+		if equipo.nombre == "rojo":
+			gamelib.draw_text(f"Puntaje equipo {equipo.nombre}: {str(puntaje)}", X_PUNTAJE + indice * STEP_PUNTAJE, Y_PUNTAJE, anchor = 'w', fill = "red", size = 25)
+		else:
+			gamelib.draw_text(f"Puntaje equipo {equipo.nombre}: {str(puntaje)}", X_PUNTAJE + indice * STEP_PUNTAJE, Y_PUNTAJE, anchor = 'e', fill = "blue", size = 25)
+		
 
 
 def esperar_eleccion():
@@ -100,7 +139,6 @@ def esperar_eleccion():
 	if X_TABLERO < evento.x < X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA and Y_TABLERO < evento.y < Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA :
 		x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (evento.y - Y_TABLERO) // STEP_Y_TARJETA
 	return (x, y)
-
 
 
 
@@ -237,7 +275,6 @@ class Juego:
 		# TODO: Repartir acciones en varias funciones
 		if self.turno.nombre == valor:
 			# Sumar valor y tarjeta a encontradas
-			print(valor)
 			self.turno.puntos += 1
 			self.turno.agregar_tarjeta_adivinada(tarjeta)
 			if self.turno.tarjetas_totales == len(self.turno.tarjetas_encontradas):
@@ -246,17 +283,14 @@ class Juego:
 				self.siguiente_turno()
 		elif valor == "asesino":
 			# menor 5 puntos y termina juego
-			print(valor)
 			self.turno.puntos -= 5
 			self.siguiente_turno()
 		elif valor == "civil":
 			# menor un punto y siguiente turno
-			print(valor)
 			self.turno.puntos -= 1
 			self.siguiente_turno()
 		else:
 			# Sumar punto y tarjeta al otro equipo y siguiente turno
-			print(valor)
 			index = self.equipos.index(self.turno)
 			otro_equipo = self.equipos[1 if index == 0 else 0]
 			otro_equipo.puntos += 1
@@ -307,7 +341,6 @@ class Equipo:
 		"""Recibe una tarjeta, la resta de tarjetas faltantes y la agrega a encontradas"""
 		if tarjeta in self.tarjetas_encontradas:
 			raise Exception("La tarjeta ya fue encontrada")
-		print(self.tarjetas_faltantes)
 		index_tarjeta = self.tarjetas_faltantes.index(tarjeta)
 		if index_tarjeta >= 0:
 			self.tarjetas_faltantes.pop(index_tarjeta)
