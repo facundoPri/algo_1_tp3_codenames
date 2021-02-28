@@ -25,6 +25,7 @@ SEP_TARJETA = 4
 
 def main():
     juego = Juego()
+    # TODO: descomentar
     # jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
     jugadores = "facu, fede, juan, diego"
     juego.agregar_jugadores(jugadores)
@@ -32,16 +33,19 @@ def main():
     gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
     while gamelib.is_alive() and not juego.terminado:
         gamelib.draw_begin()
+        print("Arranca juego")
         juego.obtener_tarjetas("tarjetas.txt")
         juego.generar_tablero()
         juego.generar_llave()
         mostrar_estado_juego(juego)
         mostrar_llave(juego)
+        juego.inicializar_rondas()
         while not juego.ronda_terminada:
             print(f"Turno de equipo {juego.turno.nombre}")
-            pista = gamelib.input("Ingresar pista:")
+            # TODO: descomentar
+            # pista = gamelib.input("Ingresar pista:")
+            pista = "hola 1"
             pista = pista.split()
-            print(pista)
             pista[0] = pista[0].upper()
             pista[1] = int(pista[1])
             juego.pedir_pista(pista)
@@ -51,29 +55,6 @@ def main():
             while not juego.pasar_turno:
                 juego.pedir_agente(esperar_eleccion())
     # mostrar_ganador(juego)
-
-
-# def main():
-#     juego = Juego()
-#     juego.iniciar()
-#     gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
-#     while gamelib.is_alive() and not juego.terminado:
-#         mostrar_estado_juego(juego)
-#         juego.obtener_tarjetas("tarjetas.txt")
-#         juego.generar_tablero()
-#         juego.generar_llave()
-#         juego.seleccionar_spymaster()
-#         juego.inicializar_rondas()
-#         while not juego.ronda_terminada:
-#             mostrar_estado_juego(juego)
-#             mostrar_llave()
-#             juego.pedir_pista()
-#             if not juego.pista_es_valida():
-#                 juego.penalizar()
-#             # Pedir agente hasta equivocarse o hasta que se terminen las chances
-#             while juego.seguir_turno:
-#                 juego.pedir_agente()
-#     # mostrar_ganador(juego)
 
 
 def mostrar_estado_juego(juego):
@@ -251,7 +232,7 @@ class Juego:
 
     def generar_tablero(self):
         """Con la lista de tarjetas arma el tablero"""
-        tarjetas = self.tarjetas
+        tarjetas = self.tarjetas.copy()
         self.tablero = [[tarjetas.pop() for x in tarjetas[:5]] for x in range(5)]
 
     def generar_llave(self):
@@ -280,6 +261,8 @@ class Juego:
                     dic_tarjetas[valor_x].append(self.tablero[index_y][index_x])
         for equipo in self.equipos:
             equipo.tarjetas_faltantes = dic_tarjetas[equipo.nombre]
+            equipo.tarjetas_totales = len(dic_tarjetas[equipo.nombre])
+            equipo.tarjetas_encontradas = []
 
     def pedir_pista(self, pista):
         """Recibe una pista en formato de (string, numero) y la agrega en el juego para ser validada y la lista del equipo"""
@@ -293,19 +276,18 @@ class Juego:
         """Devuelve un booleano diciendo si la ultima pista pasada es valida o no"""
         # TODO: Mejorar validacion
         trampa = self.ultima_pista[0] in self.tarjetas
-        print(f"trampa: {trampa}")
         if not trampa:
             self.pasar_turno = False
         return not trampa
 
     def encontrar_en_tablero(self, tarjeta):
         """Recibe el nombre de una tarjeta y devuelve su posicion en el tablero"""
-        for y in self.tablero:
-            if not tarjeta in y:
+        for index_y, valor_y in enumerate(self.tablero):
+            if not tarjeta in valor_y:
                 continue
-            for x in y:
-                if x == tarjeta:
-                    return (x, y)
+            for index_x, valor_x in enumerate(valor_y):
+                if valor_x == tarjeta:
+                    return (index_x, index_y)
 
     def penalizar(self):
         """En caso de trampa se le otorgara una tarjeta al azar al proximo equipo"""
@@ -335,32 +317,32 @@ class Juego:
         # TODO: Repartir acciones en varias funciones
         if self.turno.nombre == valor:
             # Sumar valor y tarjeta a encontradas
-            print(valor)
             self.turno.puntos += 1
             self.turno.agregar_tarjeta_adivinada(tarjeta)
+            # print(f"Cartas totales {self.turno.tarjetas_totales}")
+            # print(f"Cartas encontradas len {len(self.turno.tarjetas_encontradas)}")
             if self.turno.tarjetas_totales == len(self.turno.tarjetas_encontradas):
-                self.finalizar_rondas()
+                self.siguiente_turno()
+                self.finalizar_ronda()
             if self.ultima_pista[1] == 0:
                 self.siguiente_turno()
         elif valor == "asesino":
             # menor 5 puntos y termina juego
-            print(valor)
             self.turno.puntos -= 5
             self.siguiente_turno()
+            self.finalizar_ronda()
         elif valor == "civil":
             # menor un punto y siguiente turno
-            print(valor)
             self.turno.puntos -= 1
             self.siguiente_turno()
         else:
             # Sumar punto y tarjeta al otro equipo y siguiente turno
-            print(valor)
             index = self.equipos.index(self.turno)
             otro_equipo = self.equipos[1 if index == 0 else 0]
             otro_equipo.puntos += 1
             otro_equipo.agregar_tarjeta_adivinada(tarjeta)
             if otro_equipo.tarjetas_totales == len(otro_equipo.tarjetas_encontradas):
-                self.finalizar_rondas()
+                self.finalizar_ronda()
             self.siguiente_turno()
 
     def seleccionar_spymaster(self):
@@ -372,7 +354,7 @@ class Juego:
         """Inicializa la ronda"""
         self.ronda_terminada = False
 
-    def finalizar_rondas(self):
+    def finalizar_ronda(self):
         """Finaliza la ronda"""
         self.ronda_terminada = True
 
