@@ -365,7 +365,7 @@ class Juego:
 
     def seleccionar_spymaster(self):
         """Seleccionar un spymaster para cada equipo"""
-        for equipo in self.equipo:
+        for equipo in self.equipos:
             equipo.elegir_spymaster()
 
     def inicializar_rondas(self):
