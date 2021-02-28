@@ -49,7 +49,8 @@ class Juego:
         # Generar equipos
         equipo_rojo = Equipo("rojo")
         equipo_azul = Equipo("azul")
-        self.generar_equipos()
+        self.generar_equipos(equipo_rojo, equipo_azul)
+        # TODO: Puede agarrar los equipos del self.equipos en vez de pasarlos como argumentos
         self.equipos = [equipo_rojo, equipo_azul]
         # Inicializar juego
         self.terminado = False
