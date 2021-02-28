@@ -27,16 +27,17 @@ SEP_TARJETA = 4
 def main():
 	juego = Juego()
 	juego.iniciar()
-	gamelib.resize(1280, 720)
+	gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
 	while gamelib.is_alive() and not juego.terminado:
 		gamelib.draw_begin()
-		juego.obtener_cartas("cartas.txt")
+		juego.obtener_cartas('cartas.txt')
 		juego.generar_tablero()
 		juego.generar_llave()
 		mostrar_estado_juego(juego)
 		mostrar_llave(juego)
 		while not juego.ronda_terminada:
-			juego.pedir_pista(gamelib.input("sorete").split())
+			gamelib.say("sanata cosmica")
+			juego.pedir_pista()
 			#if not juego.pista_es_valida():
 				#juego.penalizar()
 			# Pedir agente hasta equivocarse o hasta que se terminen las chances
@@ -50,9 +51,8 @@ def main():
 def mostrar_estado_juego(juego):
 	mostrar_fondo()
 	mostrar_tablero(juego)
-	for fil in range(len(juego.tablero)):
-		for col in juego.tablero[fil]:
-			indice_fil, indice_col = fil, juego.tablero[fil].index(col)
+	for indice_fil, fil in enumerate(juego.tablero):
+		for indice_col, col in enumerate(fil):
 			if col == "":
 				genero = random.choice(('m', 'f'))
 				elemento = juego.llave[indice_fil][indice_col]
@@ -87,10 +87,10 @@ def mostrar_pistas(juego):
 def mostrar_llave(juego):
 	"""Funcion que recibe el estado del juego y muestra la llave del juego"""
 	gamelib.draw_image(f"imagenes/llave{juego.primer_equipo.nombre}.gif", X_LLAVE, Y_LLAVE)
-	for fil in range(len(juego.llave)):
-		for elemento in juego.llave[fil]:
-			indice_fil, indice_elemento = fil, juego.llave[fil].index(elemento)
-			gamelib.draw_image(f"imagenes/slot{elemento}.gif", X_LLAVE + X_SLOT_LLAVE + indice_elemento * STEP_X_SLOT, Y_LLAVE + Y_SLOT_LLAVE + indice_fil * STEP_Y_SLOT)
+	print(juego.llave)
+	for indice_fil, fil in enumerate(juego.llave):
+		for indice_col, col in enumerate(fil):
+			gamelib.draw_image(f"imagenes/slot{col}.gif", X_LLAVE + X_SLOT_LLAVE + indice_col * STEP_X_SLOT, Y_LLAVE + Y_SLOT_LLAVE + indice_fil * STEP_Y_SLOT)
 
 
 def esperar_eleccion():
@@ -99,7 +99,7 @@ def esperar_eleccion():
 	evento = gamelib.wait(gamelib.EventType.ButtonPress)
 	if X_TABLERO < evento.x < X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA and Y_TABLERO < evento.y < Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA :
 		x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (evento.y - Y_TABLERO) // STEP_Y_TARJETA
-	return x, y
+	return (x, y)
 
 
 
@@ -183,8 +183,8 @@ class Juego:
 
 	def pedir_pista(self, pista):
 		"""Recibe una pista en formato de (string, numero) y la agrega en el juego para ser validada y la lista del equipo"""
-		#if not type(pista[0]) == "str" or not type(pista[1]) == "int":
-			#raise Exception("Pista no tiene formato valido")
+		if not type(pista[0]) == "str" or not type(pista[1]) == "int":
+			raise Exception("Pista no tiene formato valido")
 		self.ultima_pista = pista
 		# Agrega la pista al equipo que le corresponde el turno
 		self.turno.pistas.append(pista)
