@@ -8,6 +8,8 @@ TABLERO_ALTO = 5
 
 def main():
     juego = Juego()
+    jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
+    juego.agregar_jugadores(jugadores)
     juego.iniciar()
     while not juego.terminado:
         # mostrar_estado_juego(juego)
@@ -60,6 +62,12 @@ class Juego:
         if jugador in self.jugadores:
             raise Exception("Este jugador ya esta jugando")
         self.jugadores.append(jugador)
+
+    def agregar_jugadores(self, jugadores):
+        """Recibe un string con todos los jugadores, lo transforma a lista y los agrega al juego"""
+        lista_jugadores = jugadores.split(",")
+        for jugador in lista_jugadores:
+            self.agregar_jugador(jugador.strip())
 
     def generar_equipos(self, equipo_rojo, equipo_azul):
         """Recibe dos equipos y asigna los jugadores a cada uno"""
