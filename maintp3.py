@@ -49,8 +49,8 @@ def main():
 			print(f"Turno de equipo {juego.turno.nombre}")
 			# TODO: descomentar
 			mostrar_llave(juego)
-			pista = gamelib.input("Ingresar pista:")
-			#pista = "hola 1"
+			#pista = gamelib.input("Ingresar pista:")
+			pista = "hola 1"
 			pista = pista.split()
 			pista[0] = pista[0].upper()
 			pista[1] = int(pista[1])
@@ -61,7 +61,6 @@ def main():
 			while not juego.pasar_turno:
 				mostrar_estado_juego(juego)
 				juego.pedir_agente(esperar_eleccion())
-				mostrar_estado_juego(juego)
 	mostrar_ganador(juego)
 
 def mostrar_estado_juego(juego):
@@ -145,7 +144,7 @@ def mostrar_pistas(juego):
 		gamelib.draw_text(
 			str_pistas,
 			X_PIZARRON_ROJO + X_TEXTO_PIZARRON,
-			Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON,
+			Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON, fill = 'red', size = 20
 		)
 
 	if juego.turno.nombre == "azul":
@@ -156,7 +155,7 @@ def mostrar_pistas(juego):
 		gamelib.draw_text(
 			str_pistas,
 			X_PIZARRON_AZUL + X_TEXTO_PIZARRON,
-			Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON,
+			Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON, fill = 'blue', size = 20
 		)
 
 
@@ -171,23 +170,92 @@ def mostrar_aciertos(juego):
 	for equipo in juego.equipos:
 		if equipo.nombre == "rojo":
 			for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
-				genero = random.choice(('m', 'f'))
 				
 				if indice <= FILAS_ACIERTOS - 1:
-					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_ROJO + indice * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO)
+					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_ROJO + indice * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO)
+					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_ROJO + X_TEXTO_TARJETA + indice * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO + Y_TEXTO_TARJETA ,
+				fill="black",
+				size=9)
+					gamelib.draw_text(
+				equipo.tarjetas_encontradas[indice],
+				X_ACIERTOS_ROJO
+				+ indice * (STEP_X_TARJETA + SEP_TARJETA)
+				+ X_TEXTO_TARJETA
+				+ X_TEXTO_TARJETA_INV,
+				Y_ACIERTOS_ROJO
+				+ Y_TEXTO_TARJETA
+				- Y_TEXTO_TARJETA_INV,
+				fill="brown",
+				anchor="w",
+				size=7,
+				angle=180,
+			)
+				
 				
 				else:
-					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_ROJO + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO + STEP_Y_TARJETA + SEP_TARJETA)
-
+					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_ROJO + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO)
+					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_ROJO + X_TEXTO_TARJETA + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO + Y_TEXTO_TARJETA ,
+				fill="black",
+				size=9)
+					gamelib.draw_text(
+				equipo.tarjetas_encontradas[indice],
+				X_ACIERTOS_ROJO
+				+ (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA)
+				+ X_TEXTO_TARJETA
+				+ X_TEXTO_TARJETA_INV,
+				Y_ACIERTOS_ROJO
+				+ (STEP_Y_TARJETA + SEP_TARJETA)
+				+ Y_TEXTO_TARJETA
+				- Y_TEXTO_TARJETA_INV,
+				fill="brown",
+				anchor="w",
+				size=7,
+				angle=180,
+			)				
 		else:
 			for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
-				genero = random.choice(('m', 'f'))
 				
-				if indice <= 3:
-					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + indice * (SEP_TARJETA + STEP_X_TARJETA), Y_ACIERTOS_AZUL)
+				if indice <= FILAS_ACIERTOS - 1:
+					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_AZUL + indice * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL)
+					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_AZUL + X_TEXTO_TARJETA + indice * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL + Y_TEXTO_TARJETA ,
+				fill="black",
+				size=9)
+					gamelib.draw_text(
+				equipo.tarjetas_encontradas[indice],
+				X_ACIERTOS_AZUL
+				+ indice * (STEP_X_TARJETA + SEP_TARJETA)
+				+ X_TEXTO_TARJETA
+				+ X_TEXTO_TARJETA_INV,
+				Y_ACIERTOS_AZUL
+				+ Y_TEXTO_TARJETA
+				- Y_TEXTO_TARJETA_INV,
+				fill="brown",
+				anchor="w",
+				size=7,
+				angle=180,
+			)
+				
 				
 				else:
-					gamelib.draw_image(f"imagenes/tarjeta{equipo.nombre}{genero}.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * (SEP_TARJETA + STEP_X_TARJETA), Y_ACIERTOS_AZUL + SEP_TARJETA + STEP_Y_TARJETA)
+					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL)
+					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_AZUL + X_TEXTO_TARJETA + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL + Y_TEXTO_TARJETA ,
+				fill="black",
+				size=9)
+					gamelib.draw_text(
+				equipo.tarjetas_encontradas[indice],
+				X_ACIERTOS_AZUL
+				+ (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA)
+				+ X_TEXTO_TARJETA
+				+ X_TEXTO_TARJETA_INV,
+				Y_ACIERTOS_AZUL
+				+(STEP_Y_TARJETA + SEP_TARJETA)
+				+ Y_TEXTO_TARJETA
+				- Y_TEXTO_TARJETA_INV,
+				fill="brown",
+				anchor="w",
+				size=7,
+				angle=180,
+			)			
 
 def mostrar_puntaje(juego):
 	for indice, equipo in enumerate(juego.equipos):
