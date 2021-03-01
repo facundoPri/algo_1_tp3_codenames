@@ -326,7 +326,7 @@ def esperar_eleccion():
 	x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (
 		evento.y - Y_TABLERO
 	) // STEP_Y_TARJETA
-	
+
 	return (x, y)
 
 
@@ -469,8 +469,11 @@ class Juego:
 		x, y = coordenadas
 		valor = self.llave[y][x]
 		tarjeta = self.tablero[y][x]
-		self.tablero[y][x] = self.turno.nombre.upper()
-		self.puntuar_equipo(valor, tarjeta)
+		if tarjeta == "ROJO" or tarjeta == "AZUL":
+			self.pedir_agente(esperar_eleccion())
+		else:
+			self.tablero[y][x] = self.turno.nombre.upper()
+			self.puntuar_equipo(valor, tarjeta)
 		self.ultima_pista[1] -= 1
 
 	def puntuar_equipo(self, valor, tarjeta):
