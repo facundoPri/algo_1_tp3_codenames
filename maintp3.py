@@ -1,8 +1,10 @@
 import random
 import gamelib
+import time
 
 TABLERO_ANCHO = 5
 TABLERO_ALTO = 5
+TIMEPO_CANCION = 110
 LIMITE_CARACTERES = 8
 FILAS_ACIERTOS = 4
 ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
@@ -31,12 +33,15 @@ SEP_TARJETA = 4
 
 def main():
 	juego = Juego()
+	gamelib.play_sound("musica/theme.wav")
 	# TODO: descomentar
 	# jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
 	jugadores = "facu, fede, juan, diego"
 	juego.agregar_jugadores(jugadores)
 	juego.iniciar()
 	gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
+	while time.time() < TIMEPO_CANCION:
+		gamelib.play_sound("musica/theme.wav")
 	while gamelib.is_alive() and not juego.terminado:
 		gamelib.draw_begin()
 		print("Arranca juego")
