@@ -20,6 +20,7 @@ X_BOTON_PASAR, Y_BOTON_PASAR = 509, 20
 X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 35
 X_TEXTO_TARJETA_INV, Y_TEXTO_TARJETA_INV = 13, 15
 X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
+X_TARJETA_ASESINO, Y_TARJETA_ASESINO =  390, 203
 X_TEXTO_GANADOR, Y_TEXTO_GANADOR = 450, 150
 X_TEXTO_GANADOR_SALIDA, Y_TEXTO_GANADOR_SALIDA = 330, 600
 X_SLOT_LLAVE, Y_SLOT_LLAVE = 31, 28
@@ -329,6 +330,12 @@ def esperar_eleccion():
 
 	return (x, y)
 
+def encontrado_asesino():
+	gamelib.draw_image("imagenes/tarjetaasesino.gif", X_TARJETA_ASESINO, Y_TARJETA_ASESINO)
+	gamelib.play_sound("musica/sfasesino.wav")
+	gamelib.say("Te encontraste con el asesino!\nFin de la ronda")
+
+
 
 class Juego:
 	def __init__(self):
@@ -471,9 +478,6 @@ class Juego:
 		tarjeta = self.tablero[y][x]
 		if tarjeta == "ROJO" or tarjeta == "AZUL":
 			self.pedir_agente(esperar_eleccion())
-		elif valor == "asesino":
-			mostrar_estado_juego(juego)
-			gamelib.say("Te encontraste con el asesino!\nFin de la ronda")
 		else:
 			self.tablero[y][x] = self.turno.nombre.upper()
 			self.puntuar_equipo(valor, tarjeta)
@@ -489,12 +493,15 @@ class Juego:
 			# print(f"Cartas totales {self.turno.tarjetas_totales}")
 			# print(f"Cartas encontradas len {len(self.turno.tarjetas_encontradas)}")
 			if self.turno.tarjetas_totales == len(self.turno.tarjetas_encontradas):
+				gamelib.play_sound("musica/sfrondafinalizada.wav")
+				gamelib.say(f"Ronda finalizada!\nEl equipo {self.turno.nombre} encontró a todos sus agentes")
 				self.siguiente_turno()
 				self.finalizar_ronda()
 			if self.ultima_pista[1] == 0:
 				self.siguiente_turno()
 		elif valor == "asesino":
 			# menor 5 puntos y termina juego
+			encontrado_asesino()
 			self.turno.puntos -= 5
 			self.siguiente_turno()
 			self.finalizar_ronda()
@@ -509,6 +516,8 @@ class Juego:
 			otro_equipo.puntos += 1
 			otro_equipo.agregar_tarjeta_adivinada(tarjeta)
 			if otro_equipo.tarjetas_totales == len(otro_equipo.tarjetas_encontradas):
+				gamelib.play_sound("musica/sfrondafinalizada.wav")
+				gamelib.say(f"Ronda finalizada!\nEl equipo {otro_equipo.nombre} encontró a todos sus agentes")
 				self.finalizar_ronda()
 			self.siguiente_turno()
 
