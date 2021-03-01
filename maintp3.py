@@ -40,8 +40,6 @@ def main():
 	juego.agregar_jugadores(jugadores)
 	juego.iniciar()
 	gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
-	while time.time() < TIMEPO_CANCION:
-		gamelib.play_sound("musica/theme.wav")
 	while gamelib.is_alive() and not juego.terminado:
 		gamelib.draw_begin()
 		print("Arranca juego")
