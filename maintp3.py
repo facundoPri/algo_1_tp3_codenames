@@ -190,7 +190,7 @@ def mostrar_aciertos(juego):
 	"""Funcion que recibe el estado del juego y muestra las tarjetas acertadas de cada equipo"""
 	for equipo in juego.equipos:
 		if equipo.nombre == "rojo":
-			for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
+			for indice in range(len(equipo.tarjetas_encontradas)):
 				
 				if indice <= FILAS_ACIERTOS - 1:
 					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_ROJO + indice * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO)
@@ -318,8 +318,8 @@ def esperar_eleccion():
 
 	evento = gamelib.wait(gamelib.EventType.ButtonPress)
 	while (
-		evento.x < X_TABLERO or evento.x > X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
-		or evento.y < Y_TABLERO or evento.y > Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
+		evento.x <= X_TABLERO or evento.x >= X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
+		or evento.y <= Y_TABLERO or evento.y >= Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
 	):
 		evento = gamelib.wait(gamelib.EventType.ButtonPress)
 
@@ -471,6 +471,9 @@ class Juego:
 		tarjeta = self.tablero[y][x]
 		if tarjeta == "ROJO" or tarjeta == "AZUL":
 			self.pedir_agente(esperar_eleccion())
+		elif valor == "asesino":
+			mostrar_estado_juego(juego)
+			gamelib.say("Te encontraste con el asesino!\nFin de la ronda")
 		else:
 			self.tablero[y][x] = self.turno.nombre.upper()
 			self.puntuar_equipo(valor, tarjeta)
