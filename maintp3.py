@@ -64,7 +64,7 @@ def main():
 	mostrar_ganador(juego)
 
 def mostrar_estado_juego(juego):
-
+	"""Funcion que recibe el estado del juego y muestra el estado del mismo"""
 	mostrar_fondo()
 	mostrar_tablero(juego)
 	mostrar_aciertos(juego)
@@ -72,30 +72,50 @@ def mostrar_estado_juego(juego):
 	mostrar_puntaje(juego)
 
 def actualizar_tablero(juego):
+	"""Funcion que recibe el estado del juego y actualiza las tarjetas segun la eleccion hecha"""
+
 	for indice_fil, fil in enumerate(juego.tablero):
 		for indice_col, col in enumerate(fil):
-			if col == "":
-				genero = random.choice(('m', 'f'))
+			if col == "ROJO" or col == "AZUL":
+				if (indice_fil + indice_col) % 2:
+					genero = 'f'
+				else:
+					genero = 'm'
 				elemento = juego.llave[indice_fil][indice_col]
 				gamelib.draw_image(f"imagenes/tarjeta{elemento}{genero}.gif", X_TABLERO + indice_col * (STEP_X_TARJETA + SEP_TARJETA),
 				Y_TABLERO + indice_fil * (STEP_Y_TARJETA + SEP_TARJETA))
 				
-				gamelib.draw_text(
-				juego.tablero[indice_fil][indice_col],
-				X_TABLERO
-				+ indice_col * (STEP_X_TARJETA + SEP_TARJETA)
-				+ X_TEXTO_TARJETA,
-				Y_TABLERO
-				+ indice_fil * (STEP_Y_TARJETA + SEP_TARJETA)
-				+ Y_TEXTO_TARJETA,
-				fill="black",
-				size=9)
+				if juego.tablero[indice_fil][indice_col] == "ROJO":
+					gamelib.draw_text(
+					juego.tablero[indice_fil][indice_col],
+					X_TABLERO
+					+ indice_col * (STEP_X_TARJETA + SEP_TARJETA)
+					+ X_TEXTO_TARJETA,
+					Y_TABLERO
+					+ indice_fil * (STEP_Y_TARJETA + SEP_TARJETA)
+					+ Y_TEXTO_TARJETA,
+					fill="red",
+					size=9)
+
+				else:
+					gamelib.draw_text(
+					juego.tablero[indice_fil][indice_col],
+					X_TABLERO
+					+ indice_col * (STEP_X_TARJETA + SEP_TARJETA)
+					+ X_TEXTO_TARJETA,
+					Y_TABLERO
+					+ indice_fil * (STEP_Y_TARJETA + SEP_TARJETA)
+					+ Y_TEXTO_TARJETA,
+					fill="blue",
+					size=9)					
 
 def mostrar_fondo():
+	"""Funcion que muestra el fondo del juego"""
 	gamelib.draw_image("imagenes/fondo.gif", 1, 1)
 
 
 def mostrar_tablero(juego):
+	"""Funcion que recibe el estado del juego y muestra las tarjetas que hay en el tablero"""
 
 	for fil in range(len(juego.tablero)):
 		for col in juego.tablero[fil]:
@@ -167,6 +187,7 @@ def mostrar_llave(juego):
 			gamelib.draw_image(f"imagenes/slot{elemento}.gif", X_LLAVE + X_SLOT_LLAVE + indice_col * STEP_X_SLOT, Y_LLAVE + Y_SLOT_LLAVE + indice_fil * STEP_Y_SLOT)
 
 def mostrar_aciertos(juego):
+	"""Funcion que recibe el estado del juego y muestra las tarjetas acertadas de cada equipo"""
 	for equipo in juego.equipos:
 		if equipo.nombre == "rojo":
 			for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
@@ -193,8 +214,8 @@ def mostrar_aciertos(juego):
 				
 				
 				else:
-					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_ROJO + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO)
-					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_ROJO + X_TEXTO_TARJETA + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO + Y_TEXTO_TARJETA ,
+					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_ROJO + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO + (STEP_Y_TARJETA + SEP_TARJETA))
+					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_ROJO + X_TEXTO_TARJETA + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_ROJO + Y_TEXTO_TARJETA + (STEP_Y_TARJETA + SEP_TARJETA) ,
 				fill="black",
 				size=9)
 					gamelib.draw_text(
@@ -237,8 +258,8 @@ def mostrar_aciertos(juego):
 				
 				
 				else:
-					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL)
-					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_AZUL + X_TEXTO_TARJETA + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL + Y_TEXTO_TARJETA ,
+					gamelib.draw_image(f"imagenes/tarjetavacia.gif", X_ACIERTOS_AZUL + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL + (STEP_Y_TARJETA + SEP_TARJETA))
+					gamelib.draw_text(equipo.tarjetas_encontradas[indice], X_ACIERTOS_AZUL + X_TEXTO_TARJETA + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA), Y_ACIERTOS_AZUL + (STEP_Y_TARJETA + SEP_TARJETA)+ Y_TEXTO_TARJETA ,
 				fill="black",
 				size=9)
 					gamelib.draw_text(
@@ -248,7 +269,7 @@ def mostrar_aciertos(juego):
 				+ X_TEXTO_TARJETA
 				+ X_TEXTO_TARJETA_INV,
 				Y_ACIERTOS_AZUL
-				+(STEP_Y_TARJETA + SEP_TARJETA)
+				+ (STEP_Y_TARJETA + SEP_TARJETA)
 				+ Y_TEXTO_TARJETA
 				- Y_TEXTO_TARJETA_INV,
 				fill="brown",
@@ -258,6 +279,7 @@ def mostrar_aciertos(juego):
 			)			
 
 def mostrar_puntaje(juego):
+	"""Funcion que recibe el estado del juego y muestra los puntos obtenidos por cada equipo"""
 	for indice, equipo in enumerate(juego.equipos):
 		puntaje = equipo.puntos
 		if equipo.nombre == "rojo":
@@ -266,6 +288,7 @@ def mostrar_puntaje(juego):
 			gamelib.draw_text(f"Puntaje equipo {equipo.nombre}: {str(puntaje)}", X_PUNTAJE + indice * STEP_PUNTAJE, Y_PUNTAJE, anchor = 'e', fill = "blue", size = 25)
 
 def mostrar_ganador(juego):
+	"""Funcion que recibe el estado del juego y muestra al equipo ganador"""
 	ganador = ""
 	puntajes = []
 
@@ -290,24 +313,22 @@ def mostrar_ganador(juego):
 		if ev.type == gamelib.EventType.KeyPress:
 			break
 
-
-
-
-
-
-
 def esperar_eleccion():
 	"""Funcion que sirve para esperar el click del usuario cuando elige el agente"""
 
 	evento = gamelib.wait(gamelib.EventType.ButtonPress)
-	if (
-		X_TABLERO < evento.x < X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
-		and Y_TABLERO < evento.y < Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
+	while (
+		evento.x < X_TABLERO or evento.x > X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
+		or evento.y < Y_TABLERO or evento.y > Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
 	):
-		x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (
-			evento.y - Y_TABLERO
-		) // STEP_Y_TARJETA
+		evento = gamelib.wait(gamelib.EventType.ButtonPress)
+
+	x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (
+		evento.y - Y_TABLERO
+	) // STEP_Y_TARJETA
+	
 	return (x, y)
+
 
 class Juego:
 	def __init__(self):
@@ -448,7 +469,7 @@ class Juego:
 		x, y = coordenadas
 		valor = self.llave[y][x]
 		tarjeta = self.tablero[y][x]
-		self.tablero[y][x] = ""
+		self.tablero[y][x] = self.turno.nombre.upper()
 		self.puntuar_equipo(valor, tarjeta)
 		self.ultima_pista[1] -= 1
 
