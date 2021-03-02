@@ -289,7 +289,7 @@ def mostrar_aciertos(juego):
                         angle=180,
                     )
         else:
-            for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
+            for indice in range(len(equipo.tarjetas_encontradas)):
 
                 if indice <= FILAS_ACIERTOS - 1:
                     gamelib.draw_image(
