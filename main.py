@@ -73,6 +73,7 @@ def main():
             # Pedir agente hasta equivocarse o hasta que se terminen las chances
             while not juego.pasar_turno:
                 mostrar_estado_juego(juego)
+                mostrar_pistas(juego)
                 juego.pedir_agente(esperar_eleccion())
     mostrar_ganador(juego)
 
@@ -178,7 +179,7 @@ def mostrar_pistas(juego):
     """Funcion que recibe el estado del juego y muestra las pistas de cada equipo en una pizarra"""
 
     if juego.turno.nombre == "rojo":
-        str_pistas = "\n".join(juego.turno.pista)
+        str_pistas = "\n".join(juego.turno.pistas)
         gamelib.draw_image(
             "imagenes/pizarronrojo.gif", X_PIZARRON_ROJO, Y_PIZARRON_ROJO
         )
@@ -191,7 +192,7 @@ def mostrar_pistas(juego):
         )
 
     if juego.turno.nombre == "azul":
-        str_pistas = "\n".join(juego.turno.pista)
+        str_pistas = "\n".join(juego.turno.pistas)
         gamelib.draw_image(
             "imagenes/pizarronazul.gif", X_PIZARRON_AZUL, Y_PIZARRON_AZUL
         )
@@ -542,7 +543,7 @@ class Juego:
             raise Exception("Pista no tiene formato valido")
         self.ultima_pista = pista
         # Agrega la pista al equipo que le corresponde el turno
-        self.turno.pistas.append(pista[0])
+        self.turno.pistas.append("-".join((pista[0], str(pista[1]))))
 
     def pista_es_valida(self):
         """Devuelve un booleano diciendo si la ultima pista pasada es valida o no"""
