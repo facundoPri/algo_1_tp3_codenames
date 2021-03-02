@@ -1,8 +1,11 @@
 import random
 import gamelib
+from threading import Timer
+
 
 TABLERO_ANCHO = 5
 TABLERO_ALTO = 5
+TIEMPO_CANCION = 105
 LIMITE_CARACTERES = 8
 FILAS_ACIERTOS = 4
 ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
@@ -30,8 +33,14 @@ STEP_PUNTAJE = 1260
 SEP_TARJETA = 4
 
 
+def arrancar_musica():
+    Timer(TIEMPO_CANCION, arrancar_musica).start()
+    gamelib.play_sound("musica/theme.wav")
+
+
 def main():
     juego = Juego()
+    arrancar_musica()
     jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
     juego.agregar_jugadores(jugadores)
     juego.iniciar()
