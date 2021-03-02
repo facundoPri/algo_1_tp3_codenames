@@ -188,7 +188,8 @@ def mostrar_pistas(juego):
             X_PIZARRON_ROJO + X_TEXTO_PIZARRON,
             Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON,
             fill="red",
-            size=20,
+            size=18,
+            justify = 'center'
         )
 
     if juego.turno.nombre == "azul":
@@ -201,7 +202,8 @@ def mostrar_pistas(juego):
             X_PIZARRON_AZUL + X_TEXTO_PIZARRON,
             Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON,
             fill="blue",
-            size=20,
+            size=18,
+            justify = 'center'
         )
 
 
