@@ -1,11 +1,16 @@
 import random
 import gamelib
+from threading import Timer
+
 
 TABLERO_ANCHO = 5
 TABLERO_ALTO = 5
+TIEMPO_CANCION = 105
 LIMITE_CARACTERES = 8
+FILAS_ACIERTOS = 4
 ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
 X_FONDO, Y_FONDO = 1, 1
+X_PUNTAJE, Y_PUNTAJE = 10, 20
 X_TABLERO, Y_TABLERO = 434, 160
 X_ACIERTOS_ROJO, Y_ACIERTOS_ROJO = 173, 528
 X_ACIERTOS_AZUL, Y_ACIERTOS_AZUL = 780, 528
@@ -15,68 +20,123 @@ X_LLAVE, Y_LLAVE = 510, 450
 X_PIZARRON_ROJO, Y_PIZARRON_ROJO = 181, 159
 X_PIZARRON_AZUL, Y_PIZARRON_AZUL = 899, 159
 X_BOTON_PASAR, Y_BOTON_PASAR = 509, 20
-X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 43
+X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 35
+X_TEXTO_TARJETA_INV, Y_TEXTO_TARJETA_INV = 13, 15
 X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
+X_TARJETA_ASESINO, Y_TARJETA_ASESINO = 390, 203
+X_TEXTO_GANADOR, Y_TEXTO_GANADOR = 450, 150
+X_TEXTO_GANADOR_SALIDA, Y_TEXTO_GANADOR_SALIDA = 330, 600
 X_SLOT_LLAVE, Y_SLOT_LLAVE = 31, 28
 STEP_X_TARJETA, STEP_Y_TARJETA = 80, 50
 STEP_X_SLOT, STEP_Y_SLOT = 40, 40
+STEP_PUNTAJE = 1260
 SEP_TARJETA = 4
+
+
+def arrancar_musica():
+    Timer(TIEMPO_CANCION, arrancar_musica).start()
+    gamelib.play_sound("musica/theme.wav")
 
 
 def main():
     juego = Juego()
-    # TODO: descomentar
-    # jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
-    jugadores = "facu, fede, juan, diego"
+    arrancar_musica()
+    jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
     juego.agregar_jugadores(jugadores)
     juego.iniciar()
     gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
     while gamelib.is_alive() and not juego.terminado:
-        gamelib.draw_begin()
-        print("Arranca juego")
+        # gamelib.draw_begin()
         juego.obtener_tarjetas("tarjetas.txt")
         juego.generar_tablero()
         juego.generar_llave()
+        juego.seleccionar_spymaster()
         mostrar_estado_juego(juego)
         mostrar_llave(juego)
         juego.inicializar_rondas()
         while not juego.ronda_terminada:
+            mostrar_estado_juego(juego)
+            # TODO: Mensaje de cambio a spymaste
+            gamelib.say(
+                f"Turno del spymaster {juego.turno.nombre} - {juego.turno.spymaster}\nNo miren!"
+            )
             print(f"Turno de equipo {juego.turno.nombre}")
-            # TODO: descomentar
-            # pista = gamelib.input("Ingresar pista:")
-            pista = "hola 1"
+            mostrar_llave(juego)
+            pista = gamelib.input("Ingresar pista:")
             pista = pista.split()
             pista[0] = pista[0].upper()
             pista[1] = int(pista[1])
+            mostrar_estado_juego(juego)
             juego.pedir_pista(pista)
             if not juego.pista_es_valida():
                 juego.penalizar()
             # Pedir agente hasta equivocarse o hasta que se terminen las chances
             while not juego.pasar_turno:
+                mostrar_estado_juego(juego)
                 juego.pedir_agente(esperar_eleccion())
-    # mostrar_ganador(juego)
+    mostrar_ganador(juego)
 
 
 def mostrar_estado_juego(juego):
+    """Funcion que recibe el estado del juego y muestra el estado del mismo"""
     mostrar_fondo()
     mostrar_tablero(juego)
+    mostrar_aciertos(juego)
+    actualizar_tablero(juego)
+    mostrar_puntaje(juego)
+
+
+def actualizar_tablero(juego):
+    """Funcion que recibe el estado del juego y actualiza las tarjetas segun la eleccion hecha"""
+
     for indice_fil, fil in enumerate(juego.tablero):
         for indice_col, col in enumerate(fil):
-            if col == "":
-                genero = random.choice(("m", "f"))
+            if col == "ROJO" or col == "AZUL":
+                if (indice_fil + indice_col) % 2:
+                    genero = "f"
+                else:
+                    genero = "m"
                 elemento = juego.llave[indice_fil][indice_col]
                 gamelib.draw_image(
                     f"imagenes/tarjeta{elemento}{genero}.gif",
-                    X_LLAVE + indice_col * STEP_X_SLOT,
-                    Y_LLAVE + indice_fil * STEP_Y_SLOT,
+                    X_TABLERO + indice_col * (STEP_X_TARJETA + SEP_TARJETA),
+                    Y_TABLERO + indice_fil * (STEP_Y_TARJETA + SEP_TARJETA),
                 )
+
+                if juego.tablero[indice_fil][indice_col] == "ROJO":
+                    gamelib.draw_text(
+                        juego.tablero[indice_fil][indice_col],
+                        X_TABLERO
+                        + indice_col * (STEP_X_TARJETA + SEP_TARJETA)
+                        + X_TEXTO_TARJETA,
+                        Y_TABLERO
+                        + indice_fil * (STEP_Y_TARJETA + SEP_TARJETA)
+                        + Y_TEXTO_TARJETA,
+                        fill="red",
+                        size=9,
+                    )
+
+                else:
+                    gamelib.draw_text(
+                        juego.tablero[indice_fil][indice_col],
+                        X_TABLERO
+                        + indice_col * (STEP_X_TARJETA + SEP_TARJETA)
+                        + X_TEXTO_TARJETA,
+                        Y_TABLERO
+                        + indice_fil * (STEP_Y_TARJETA + SEP_TARJETA)
+                        + Y_TEXTO_TARJETA,
+                        fill="blue",
+                        size=9,
+                    )
 
 
 def mostrar_fondo():
+    """Funcion que muestra el fondo del juego"""
     gamelib.draw_image("imagenes/fondo.gif", 1, 1)
 
 
 def mostrar_tablero(juego):
+    """Funcion que recibe el estado del juego y muestra las tarjetas que hay en el tablero"""
 
     for fil in range(len(juego.tablero)):
         for col in juego.tablero[fil]:
@@ -102,11 +162,11 @@ def mostrar_tablero(juego):
                 X_TABLERO
                 + indice_col * (STEP_X_TARJETA + SEP_TARJETA)
                 + X_TEXTO_TARJETA
-                + 13,
+                + X_TEXTO_TARJETA_INV,
                 Y_TABLERO
                 + indice_fil * (STEP_Y_TARJETA + SEP_TARJETA)
                 + Y_TEXTO_TARJETA
-                - 28,
+                - Y_TEXTO_TARJETA_INV,
                 fill="brown",
                 anchor="w",
                 size=7,
@@ -126,6 +186,8 @@ def mostrar_pistas(juego):
             str_pistas,
             X_PIZARRON_ROJO + X_TEXTO_PIZARRON,
             Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON,
+            fill="red",
+            size=20,
         )
 
     if juego.turno.nombre == "azul":
@@ -137,6 +199,8 @@ def mostrar_pistas(juego):
             str_pistas,
             X_PIZARRON_AZUL + X_TEXTO_PIZARRON,
             Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON,
+            fill="blue",
+            size=20,
         )
 
 
@@ -145,28 +209,237 @@ def mostrar_llave(juego):
     gamelib.draw_image(
         f"imagenes/llave{juego.primer_equipo.nombre}.gif", X_LLAVE, Y_LLAVE
     )
-    print(juego.llave)
     for indice_fil, fil in enumerate(juego.llave):
-        for indice_col, col in enumerate(fil):
+        for indice_col, elemento in enumerate(fil):
             gamelib.draw_image(
-                f"imagenes/slot{col}.gif",
+                f"imagenes/slot{elemento}.gif",
                 X_LLAVE + X_SLOT_LLAVE + indice_col * STEP_X_SLOT,
                 Y_LLAVE + Y_SLOT_LLAVE + indice_fil * STEP_Y_SLOT,
             )
+
+
+def mostrar_aciertos(juego):
+    """Funcion que recibe el estado del juego y muestra las tarjetas acertadas de cada equipo"""
+    for equipo in juego.equipos:
+        if equipo.nombre == "rojo":
+            for indice in range(len(equipo.tarjetas_encontradas)):
+
+                if indice <= FILAS_ACIERTOS - 1:
+                    gamelib.draw_image(
+                        f"imagenes/tarjetavacia.gif",
+                        X_ACIERTOS_ROJO + indice * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_ROJO,
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_ROJO
+                        + X_TEXTO_TARJETA
+                        + indice * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_ROJO + Y_TEXTO_TARJETA,
+                        fill="black",
+                        size=9,
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_ROJO
+                        + indice * (STEP_X_TARJETA + SEP_TARJETA)
+                        + X_TEXTO_TARJETA
+                        + X_TEXTO_TARJETA_INV,
+                        Y_ACIERTOS_ROJO + Y_TEXTO_TARJETA - Y_TEXTO_TARJETA_INV,
+                        fill="brown",
+                        anchor="w",
+                        size=7,
+                        angle=180,
+                    )
+
+                else:
+                    gamelib.draw_image(
+                        f"imagenes/tarjetavacia.gif",
+                        X_ACIERTOS_ROJO
+                        + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_ROJO + (STEP_Y_TARJETA + SEP_TARJETA),
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_ROJO
+                        + X_TEXTO_TARJETA
+                        + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_ROJO
+                        + Y_TEXTO_TARJETA
+                        + (STEP_Y_TARJETA + SEP_TARJETA),
+                        fill="black",
+                        size=9,
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_ROJO
+                        + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA)
+                        + X_TEXTO_TARJETA
+                        + X_TEXTO_TARJETA_INV,
+                        Y_ACIERTOS_ROJO
+                        + (STEP_Y_TARJETA + SEP_TARJETA)
+                        + Y_TEXTO_TARJETA
+                        - Y_TEXTO_TARJETA_INV,
+                        fill="brown",
+                        anchor="w",
+                        size=7,
+                        angle=180,
+                    )
+        else:
+            for indice, tarjeta in enumerate(equipo.tarjetas_encontradas):
+
+                if indice <= FILAS_ACIERTOS - 1:
+                    gamelib.draw_image(
+                        f"imagenes/tarjetavacia.gif",
+                        X_ACIERTOS_AZUL + indice * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_AZUL,
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_AZUL
+                        + X_TEXTO_TARJETA
+                        + indice * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_AZUL + Y_TEXTO_TARJETA,
+                        fill="black",
+                        size=9,
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_AZUL
+                        + indice * (STEP_X_TARJETA + SEP_TARJETA)
+                        + X_TEXTO_TARJETA
+                        + X_TEXTO_TARJETA_INV,
+                        Y_ACIERTOS_AZUL + Y_TEXTO_TARJETA - Y_TEXTO_TARJETA_INV,
+                        fill="brown",
+                        anchor="w",
+                        size=7,
+                        angle=180,
+                    )
+
+                else:
+                    gamelib.draw_image(
+                        f"imagenes/tarjetavacia.gif",
+                        X_ACIERTOS_AZUL
+                        + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_AZUL + (STEP_Y_TARJETA + SEP_TARJETA),
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_AZUL
+                        + X_TEXTO_TARJETA
+                        + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA),
+                        Y_ACIERTOS_AZUL
+                        + (STEP_Y_TARJETA + SEP_TARJETA)
+                        + Y_TEXTO_TARJETA,
+                        fill="black",
+                        size=9,
+                    )
+                    gamelib.draw_text(
+                        equipo.tarjetas_encontradas[indice],
+                        X_ACIERTOS_AZUL
+                        + (indice - FILAS_ACIERTOS) * (STEP_X_TARJETA + SEP_TARJETA)
+                        + X_TEXTO_TARJETA
+                        + X_TEXTO_TARJETA_INV,
+                        Y_ACIERTOS_AZUL
+                        + (STEP_Y_TARJETA + SEP_TARJETA)
+                        + Y_TEXTO_TARJETA
+                        - Y_TEXTO_TARJETA_INV,
+                        fill="brown",
+                        anchor="w",
+                        size=7,
+                        angle=180,
+                    )
+
+
+def mostrar_puntaje(juego):
+    """Funcion que recibe el estado del juego y muestra los puntos obtenidos por cada equipo"""
+    for indice, equipo in enumerate(juego.equipos):
+        puntaje = equipo.puntos
+        if equipo.nombre == "rojo":
+            gamelib.draw_text(
+                f"Puntaje equipo {equipo.nombre}: {str(puntaje)}",
+                X_PUNTAJE + indice * STEP_PUNTAJE,
+                Y_PUNTAJE,
+                anchor="w",
+                fill="red",
+                size=25,
+            )
+        else:
+            gamelib.draw_text(
+                f"Puntaje equipo {equipo.nombre}: {str(puntaje)}",
+                X_PUNTAJE + indice * STEP_PUNTAJE,
+                Y_PUNTAJE,
+                anchor="e",
+                fill="blue",
+                size=25,
+            )
+
+
+def mostrar_ganador(juego):
+    """Funcion que recibe el estado del juego y muestra al equipo ganador"""
+    ganador = ""
+    puntajes = []
+
+    for equipo in juego.equipos:
+        puntajes.append(equipo.puntos)
+    for equipo in juego.equipos:
+        if equipo.puntos == max(puntajes):
+            ganador = equipo.nombre
+
+    while gamelib.is_alive():
+
+        gamelib.draw_begin()
+        gamelib.draw_image("imagenes/fondoganador.gif", X_FONDO, Y_FONDO)
+        gamelib.draw_text(
+            f"El equipo {ganador} es el ganador!\nPuntaje final: {str(max(puntajes))}",
+            X_TEXTO_GANADOR,
+            Y_TEXTO_GANADOR,
+            fill="gray",
+            size=50,
+            justify="c",
+        )
+        gamelib.draw_text(
+            "Presiona cualquier tecla para salir",
+            X_TEXTO_GANADOR_SALIDA,
+            Y_TEXTO_GANADOR_SALIDA,
+            fill="gray",
+            size=30,
+        )
+        gamelib.draw_end()
+
+        ev = gamelib.wait(gamelib.EventType.KeyPress)
+
+        if not ev:
+            break
+        if ev.type == gamelib.EventType.KeyPress:
+            break
 
 
 def esperar_eleccion():
     """Funcion que sirve para esperar el click del usuario cuando elige el agente"""
 
     evento = gamelib.wait(gamelib.EventType.ButtonPress)
-    if (
-        X_TABLERO < evento.x < X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
-        and Y_TABLERO < evento.y < Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
+    while (
+        evento.x <= X_TABLERO
+        or evento.x >= X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
+        or evento.y <= Y_TABLERO
+        or evento.y >= Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
     ):
-        x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (
-            evento.y - Y_TABLERO
-        ) // STEP_Y_TARJETA
+        evento = gamelib.wait(gamelib.EventType.ButtonPress)
+
+    x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (
+        evento.y - Y_TABLERO
+    ) // STEP_Y_TARJETA
+
     return (x, y)
+
+
+def encontrado_asesino():
+    gamelib.draw_image(
+        "imagenes/tarjetaasesino.gif", X_TARJETA_ASESINO, Y_TARJETA_ASESINO
+    )
+    gamelib.play_sound("musica/sfasesino.wav")
+    gamelib.say("Te encontraste con el asesino!\nFin de la ronda")
 
 
 class Juego:
@@ -191,9 +464,8 @@ class Juego:
         # Generar equipos
         equipo_rojo = Equipo("rojo")
         equipo_azul = Equipo("azul")
-        self.generar_equipos(equipo_rojo, equipo_azul)
-        # TODO: Puede agarrar los equipos del self.equipos en vez de pasarlos como argumentos
         self.equipos = [equipo_rojo, equipo_azul]
+        self.generar_equipos(equipo_rojo, equipo_azul)
         # Inicializar juego
         self.terminado = False
 
@@ -295,7 +567,11 @@ class Juego:
         otro_equipo = self.equipos[1 if index_tramposo == 0 else 0]
         tarjeta_faltante_random = otro_equipo.seleccionar_tarjeta_random()
         x, y = self.encontrar_en_tablero(tarjeta_faltante_random)
-        self.tablero[y][x] = ""
+        valor = self.llave[y][x]
+        tarjeta = self.tablero[y][x]
+        # TODO: repensar solucion
+        # Aparece el nombre del equipo que hizo trampa en la carta dada vuelta
+        self.tablero[y][x] = self.turno.nombre.upper()
 
     def siguiente_turno(self):
         """Cambia el turno para el proximo equipo"""
@@ -308,8 +584,11 @@ class Juego:
         x, y = coordenadas
         valor = self.llave[y][x]
         tarjeta = self.tablero[y][x]
-        self.tablero[y][x] = ""
-        self.puntuar_equipo(valor, tarjeta)
+        if tarjeta == "ROJO" or tarjeta == "AZUL":
+            self.pedir_agente(esperar_eleccion())
+        else:
+            self.tablero[y][x] = self.turno.nombre.upper()
+            self.puntuar_equipo(valor, tarjeta)
         self.ultima_pista[1] -= 1
 
     def puntuar_equipo(self, valor, tarjeta):
@@ -319,15 +598,20 @@ class Juego:
             # Sumar valor y tarjeta a encontradas
             self.turno.puntos += 1
             self.turno.agregar_tarjeta_adivinada(tarjeta)
-            # print(f"Cartas totales {self.turno.tarjetas_totales}")
-            # print(f"Cartas encontradas len {len(self.turno.tarjetas_encontradas)}")
             if self.turno.tarjetas_totales == len(self.turno.tarjetas_encontradas):
+                # TODO: pensa si esto es lo mejor
+                gamelib.play_sound("musica/sfrondafinalizada.wav")
+                gamelib.say(
+                    f"Ronda finalizada!\nEl equipo {self.turno.nombre} encontró a todos sus agentes"
+                )
                 self.siguiente_turno()
                 self.finalizar_ronda()
             if self.ultima_pista[1] == 0:
                 self.siguiente_turno()
         elif valor == "asesino":
             # menor 5 puntos y termina juego
+            # TODO: pensar si esto es lo mejor
+            encontrado_asesino()
             self.turno.puntos -= 5
             self.siguiente_turno()
             self.finalizar_ronda()
@@ -342,6 +626,11 @@ class Juego:
             otro_equipo.puntos += 1
             otro_equipo.agregar_tarjeta_adivinada(tarjeta)
             if otro_equipo.tarjetas_totales == len(otro_equipo.tarjetas_encontradas):
+                # TODO: pensar si esto es lo mejor
+                gamelib.play_sound("musica/sfrondafinalizada.wav")
+                gamelib.say(
+                    f"Ronda finalizada!\nEl equipo {otro_equipo.nombre} encontró a todos sus agentes"
+                )
                 self.finalizar_ronda()
             self.siguiente_turno()
 
@@ -357,6 +646,14 @@ class Juego:
     def finalizar_ronda(self):
         """Finaliza la ronda"""
         self.ronda_terminada = True
+        self.terminado = self.juego_terminado()
+
+    def juego_terminado(self):
+        """Verifica que siga habiendo jugadores por ser spymaster en alguno de los equipos"""
+        return (
+            not self.equipos[0].futuros_spymaster
+            and not self.equipos[1].futuros_spymaster
+        )
 
 
 class Equipo:
@@ -374,20 +671,23 @@ class Equipo:
 
     def agregar_jugadores(self, jugadores):
         """Recibe una lista de jugadores y los agrega al equipo"""
-        self.jugadores = jugadores
-        self.para_spymaster = jugadores
+        self.jugadores = jugadores.copy()
+        self.futuros_spymaster = jugadores.copy()
 
     def elegir_spymaster(self):
         """Elije de manera random un spymaster de la lista que no fue todavia"""
-        nuevo_spymaster = random.choice(self.futuros_spymaster)
-        self.futuros_spymaster.remove(nuevo_spymaster)
-        self.spymaster = nuevo_spymaster
+        if not self.futuros_spymaster:
+            self.spymaster = random.choice(self.jugadores)
+        else:
+            nuevo_spymaster = random.choice(self.futuros_spymaster)
+            self.futuros_spymaster.remove(nuevo_spymaster)
+            self.spymaster = nuevo_spymaster
+        print(f"SpyMaster: {self.spymaster}")
 
     def agregar_tarjeta_adivinada(self, tarjeta):
         """Recibe una tarjeta, la resta de tarjetas faltantes y la agrega a encontradas"""
         if tarjeta in self.tarjetas_encontradas:
             raise Exception("La tarjeta ya fue encontrada")
-        print(self.tarjetas_faltantes)
         index_tarjeta = self.tarjetas_faltantes.index(tarjeta)
         if index_tarjeta >= 0:
             self.tarjetas_faltantes.pop(index_tarjeta)
