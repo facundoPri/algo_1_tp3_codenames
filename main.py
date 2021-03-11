@@ -14,12 +14,10 @@ X_PUNTAJE, Y_PUNTAJE = 10, 20
 X_TABLERO, Y_TABLERO = 434, 160
 X_ACIERTOS_ROJO, Y_ACIERTOS_ROJO = 173, 528
 X_ACIERTOS_AZUL, Y_ACIERTOS_AZUL = 780, 528
-X_AGENTEDOBLE_ROJO, Y_AGENTEDOBLE_ROJO = 297, 654
-X_AGENTEDOBLE_AZUL, Y_AGENTEDOBLE_AZUL = 904, 654
 X_LLAVE, Y_LLAVE = 510, 450
 X_PIZARRON_ROJO, Y_PIZARRON_ROJO = 181, 159
 X_PIZARRON_AZUL, Y_PIZARRON_AZUL = 899, 159
-X_BOTON_PASAR, Y_BOTON_PASAR = 509, 20
+X_EQUIPO_ACTUAL, Y_EQUIPO_ACTUAL = 509, 20
 X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 35
 X_TEXTO_TARJETA_INV, Y_TEXTO_TARJETA_INV = 13, 15
 X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
@@ -44,9 +42,9 @@ def main():
     jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
     juego.agregar_jugadores(jugadores)
     juego.iniciar()
+    gamelib.draw_begin()
     gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
     while gamelib.is_alive() and not juego.terminado:
-        # gamelib.draw_begin()
         juego.obtener_tarjetas("tarjetas.txt")
         juego.generar_tablero()
         juego.generar_llave()
@@ -73,8 +71,10 @@ def main():
             # Pedir agente hasta equivocarse o hasta que se terminen las chances
             while not juego.pasar_turno:
                 mostrar_estado_juego(juego)
+                mostrar_pistas(juego)
                 juego.pedir_agente(esperar_eleccion())
     mostrar_ganador(juego)
+    gamelib.draw_end()
 
 
 def mostrar_estado_juego(juego):
@@ -178,7 +178,7 @@ def mostrar_pistas(juego):
     """Funcion que recibe el estado del juego y muestra las pistas de cada equipo en una pizarra"""
 
     if juego.turno.nombre == "rojo":
-        str_pistas = "\n".join(juego.turno.pista)
+        str_pistas = "\n".join(juego.turno.pistas)
         gamelib.draw_image(
             "imagenes/pizarronrojo.gif", X_PIZARRON_ROJO, Y_PIZARRON_ROJO
         )
@@ -187,11 +187,12 @@ def mostrar_pistas(juego):
             X_PIZARRON_ROJO + X_TEXTO_PIZARRON,
             Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON,
             fill="red",
-            size=20,
+            size=18,
+            justify = 'center'
         )
 
     if juego.turno.nombre == "azul":
-        str_pistas = "\n".join(juego.turno.pista)
+        str_pistas = "\n".join(juego.turno.pistas)
         gamelib.draw_image(
             "imagenes/pizarronazul.gif", X_PIZARRON_AZUL, Y_PIZARRON_AZUL
         )
@@ -200,7 +201,8 @@ def mostrar_pistas(juego):
             X_PIZARRON_AZUL + X_TEXTO_PIZARRON,
             Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON,
             fill="blue",
-            size=20,
+            size=18,
+            justify = 'center'
         )
 
 
@@ -498,7 +500,7 @@ class Juego:
         lista_tarjetas = []
         with open(ruta) as tarjetas:
             for tarjeta in tarjetas:
-                if not len(tarjeta) > 8 and not tarjeta in lista_tarjetas:
+                if not len(tarjeta) > LIMITE_CARACTERES and not tarjeta in lista_tarjetas:
                     lista_tarjetas.append(tarjeta.upper().rstrip())
         self.tarjetas = random.sample(lista_tarjetas, 25)
 
@@ -542,7 +544,7 @@ class Juego:
             raise Exception("Pista no tiene formato valido")
         self.ultima_pista = pista
         # Agrega la pista al equipo que le corresponde el turno
-        self.turno.pistas.append(pista[0])
+        self.turno.pistas.append(" - ".join((pista[0], str(pista[1]))))
 
     def pista_es_valida(self):
         """Devuelve un booleano diciendo si la ultima pista pasada es valida o no"""
