@@ -11,6 +11,7 @@ FILAS_ACIERTOS = 4
 ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
 X_FONDO, Y_FONDO = 1, 1
 X_PUNTAJE, Y_PUNTAJE = 10, 20
+Y_INTEGRANTES = 40
 INICIO_TABLERO = (434, 160)
 INICIO_ACIERTOS_ROJO = (173, 528)
 INICIO_ACIERTOS_AZUL = (780, 528)
@@ -83,7 +84,7 @@ def mostrar_estado_juego(juego):
     mostrar_tablero(juego)
     mostrar_aciertos(juego)
     actualizar_tablero(juego)
-    mostrar_puntaje(juego)
+    mostrar_stats_equipo(juego)
 
 def dibujar_texto_tablero(valor, inicio, indice_x, indice_y, color):
     gamelib.draw_text(
@@ -250,7 +251,7 @@ def mostrar_aciertos(juego):
                     dibujar_tarjetas(juego, equipo.tarjetas_encontradas[indice], INICIO_ACIERTOS_AZUL, indice - FILAS_ACIERTOS, indice_fil)
 
 
-def mostrar_puntaje(juego):
+def mostrar_stats_equipo(juego):
     """Funcion que recibe el estado del juego y muestra los puntos obtenidos por cada equipo"""
     for indice, equipo in enumerate(juego.equipos):
         puntaje = equipo.puntos
@@ -263,6 +264,14 @@ def mostrar_puntaje(juego):
                 fill="red",
                 size=25,
             )
+            gamelib.draw_text(
+                f"Integrantes: {' - '.join(equipo.jugadores)}",
+                X_PUNTAJE + indice * STEP_PUNTAJE,
+                Y_PUNTAJE + Y_INTEGRANTES,
+                anchor="w",
+                fill="red",
+                size=15,
+            )
         else:
             gamelib.draw_text(
                 f"Puntaje equipo {equipo.nombre}: {str(puntaje)}",
@@ -271,6 +280,14 @@ def mostrar_puntaje(juego):
                 anchor="e",
                 fill="blue",
                 size=25,
+            )
+            gamelib.draw_text(
+                f"Integrantes: {' - '.join(equipo.jugadores)}",
+                X_PUNTAJE + indice * STEP_PUNTAJE,
+                Y_PUNTAJE + Y_INTEGRANTES,
+                anchor="e",
+                fill="blue",
+                size=15,
             )
 
 
