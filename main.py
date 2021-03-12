@@ -12,18 +12,15 @@ ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
 X_FONDO, Y_FONDO = 1, 1
 X_PUNTAJE, Y_PUNTAJE = 10, 20
 INICIO_TABLERO = (434, 160)
-X_TABLERO, Y_TABLERO = 434, 160
 INICIO_ACIERTOS_ROJO = (173, 528)
-X_ACIERTOS_ROJO, Y_ACIERTOS_ROJO = 173, 528
 INICIO_ACIERTOS_AZUL = (780, 528)
-X_ACIERTOS_AZUL, Y_ACIERTOS_AZUL = 780, 528
 X_LLAVE, Y_LLAVE = 510, 450
 X_PIZARRON_ROJO, Y_PIZARRON_ROJO = 181, 159
 X_PIZARRON_AZUL, Y_PIZARRON_AZUL = 899, 159
 X_EQUIPO_ACTUAL, Y_EQUIPO_ACTUAL = 509, 20
 X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 35
 X_TEXTO_TARJETA_INV, Y_TEXTO_TARJETA_INV = 13, 15
-X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
+X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 100
 X_TARJETA_ASESINO, Y_TARJETA_ASESINO = 390, 203
 X_TEXTO_GANADOR, Y_TEXTO_GANADOR = 450, 150
 X_TEXTO_GANADOR_SALIDA, Y_TEXTO_GANADOR_SALIDA = 330, 600
@@ -119,7 +116,7 @@ def dibujar_texto_invertido(valor, inicio, indice_x, indice_y):
     )
 
 def genero_tarjeta(indice_x, indice_y):
-    if indice_x + indice_y % 2:
+    if ((indice_x + indice_y) % 2):
         return 'm'
     return 'f'
 
@@ -127,7 +124,7 @@ def dibujar_tarjetas(juego, valor, inicio, indice_x, indice_y):
 
     if valor == "ROJO":
         genero = genero_tarjeta(indice_x, indice_y)
-        elemento = juego.llave[indice_x][indice_y]
+        elemento = juego.llave[indice_y][indice_x]
         gamelib.draw_image(
         f"imagenes/tarjeta{elemento}{genero}.gif",
         inicio[X] + indice_x * (STEP_X_TARJETA + SEP_TARJETA),
@@ -138,7 +135,7 @@ def dibujar_tarjetas(juego, valor, inicio, indice_x, indice_y):
 
     elif valor == "AZUL":
         genero = genero_tarjeta(indice_x, indice_y)
-        elemento = juego.llave[indice_x][indice_y]
+        elemento = juego.llave[indice_y][indice_x]
         gamelib.draw_image(
         f"imagenes/tarjeta{elemento}{genero}.gif",
         inicio[X] + indice_x * (STEP_X_TARJETA + SEP_TARJETA),
@@ -322,15 +319,15 @@ def esperar_eleccion():
 
     evento = gamelib.wait(gamelib.EventType.ButtonPress)
     while (
-        evento.x <= X_TABLERO
-        or evento.x >= X_TABLERO + TABLERO_ANCHO * STEP_X_TARJETA
-        or evento.y <= Y_TABLERO
-        or evento.y >= Y_TABLERO + TABLERO_ALTO * STEP_Y_TARJETA
+        evento.x <= INICIO_TABLERO[X]
+        or evento.x >= INICIO_TABLERO[X] + TABLERO_ANCHO * STEP_X_TARJETA
+        or evento.y <= INICIO_TABLERO[Y]
+        or evento.y >= INICIO_TABLERO[Y] + TABLERO_ALTO * STEP_Y_TARJETA
     ):
         evento = gamelib.wait(gamelib.EventType.ButtonPress)
 
-    x, y = (evento.x - X_TABLERO) // STEP_X_TARJETA, (
-        evento.y - Y_TABLERO
+    x, y = (evento.x - INICIO_TABLERO[X]) // STEP_X_TARJETA, (
+        evento.y - INICIO_TABLERO[Y]
     ) // STEP_Y_TARJETA
 
     return (x, y)
@@ -548,6 +545,8 @@ class Juego:
     def finalizar_ronda(self):
         """Finaliza la ronda"""
         self.ronda_terminada = True
+        self.equipos[0].pistas = []
+        self.equipos[1].pistas = []
         self.terminado = self.juego_terminado()
 
     def juego_terminado(self):
