@@ -65,8 +65,8 @@ def main():
     juego.agregar_jugadores(jugadores)
     juego.iniciar()
     gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
+    gamelib.draw_begin()
     while gamelib.is_alive() and not juego.terminado:
-        # gamelib.draw_begin()
         juego.obtener_tarjetas("tarjetas.txt")
         juego.generar_tablero()
         juego.generar_llave()
@@ -93,6 +93,7 @@ def main():
                 mostrar_pistas(juego)
                 juego.pedir_agente(esperar_eleccion())
     mostrar_ganador(juego)
+    gamelib.draw_end()
 
 
 def mostrar_estado_juego(juego):
@@ -206,7 +207,7 @@ def mostrar_pistas(juego):
             Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON,
             fill="red",
             size=18,
-            justify = 'center'
+            justify="center",
         )
 
     if juego.turno.nombre == "azul":
@@ -220,7 +221,7 @@ def mostrar_pistas(juego):
             Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON,
             fill="blue",
             size=18,
-            justify = 'center'
+            justify="center",
         )
 
 
