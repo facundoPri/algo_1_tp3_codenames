@@ -6,7 +6,6 @@ from threading import Timer
 TABLERO_ANCHO = 5
 TABLERO_ALTO = 5
 TIEMPO_CANCION = 105
-LIMITE_CARACTERES = 8
 FILAS_ACIERTOS = 4
 ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO = 1280, 720
 X_FONDO, Y_FONDO = 1, 1
@@ -14,12 +13,9 @@ X_PUNTAJE, Y_PUNTAJE = 10, 20
 X_TABLERO, Y_TABLERO = 434, 160
 X_ACIERTOS_ROJO, Y_ACIERTOS_ROJO = 173, 528
 X_ACIERTOS_AZUL, Y_ACIERTOS_AZUL = 780, 528
-X_AGENTEDOBLE_ROJO, Y_AGENTEDOBLE_ROJO = 297, 654
-X_AGENTEDOBLE_AZUL, Y_AGENTEDOBLE_AZUL = 904, 654
 X_LLAVE, Y_LLAVE = 510, 450
 X_PIZARRON_ROJO, Y_PIZARRON_ROJO = 181, 159
 X_PIZARRON_AZUL, Y_PIZARRON_AZUL = 899, 159
-X_BOTON_PASAR, Y_BOTON_PASAR = 509, 20
 X_TEXTO_TARJETA, Y_TEXTO_TARJETA = 40, 35
 X_TEXTO_TARJETA_INV, Y_TEXTO_TARJETA_INV = 13, 15
 X_TEXTO_PIZARRON, Y_TEXTO_PIZARRON = 123, 80
@@ -38,15 +34,39 @@ def arrancar_musica():
     gamelib.play_sound("musica/theme.wav")
 
 
+def jugadores_input(min, mensaje):
+    """Crear un input con gamelib pidiendo jugadores y los devuelve en una lista"""
+    jugadores = gamelib.input(mensaje)
+    lista_jugadores = [jugador.strip() for jugador in jugadores.split(",")]
+    if len(lista_jugadores) < min:
+        return jugadores_input(min, "INPUT INVALIDO, Separar jugadores con coma")
+    return lista_jugadores
+
+
+def pista_input(mensaje):
+    """Crear un input con gamelib pidiendo jugadores y los devuelve en una lista"""
+    pistas = gamelib.input(mensaje)
+    lista_pista = [pista.strip() for pista in pistas.split(",")]
+    if len(lista_pista) != 2:
+        return pista_input(mensaje="INPUT INVALIDO\nFormato a seguir (pista,numero)")
+    if not lista_pista[1].isdigit():
+        return pista_input(mensaje="INPUT INVALIDO\nFormato a seguir (pista,numero)")
+    lista_pista[0] = lista_pista[0].upper()
+    lista_pista[1] = int(lista_pista[1])
+    return lista_pista
+
+
 def main():
     juego = Juego()
     arrancar_musica()
-    jugadores = gamelib.input("Listar todos los jugadores\nSepararlos por coma")
+    jugadores = jugadores_input(
+        juego.jugadores_min, "Ingresar jugadores\nSepararlos por coma"
+    )
     juego.agregar_jugadores(jugadores)
     juego.iniciar()
     gamelib.resize(ANCHO_VENTANA_JUEGO, ALTO_VENTANA_JUEGO)
+    gamelib.draw_begin()
     while gamelib.is_alive() and not juego.terminado:
-        # gamelib.draw_begin()
         juego.obtener_tarjetas("tarjetas.txt")
         juego.generar_tablero()
         juego.generar_llave()
@@ -62,10 +82,7 @@ def main():
             )
             print(f"Turno de equipo {juego.turno.nombre}")
             mostrar_llave(juego)
-            pista = gamelib.input("Ingresar pista:")
-            pista = pista.split()
-            pista[0] = pista[0].upper()
-            pista[1] = int(pista[1])
+            pista = pista_input("Ingresar pista:\nSeparar con coma, (pista, numero)")
             mostrar_estado_juego(juego)
             juego.pedir_pista(pista)
             if not juego.pista_es_valida():
@@ -76,6 +93,7 @@ def main():
                 mostrar_pistas(juego)
                 juego.pedir_agente(esperar_eleccion())
     mostrar_ganador(juego)
+    gamelib.draw_end()
 
 
 def mostrar_estado_juego(juego):
@@ -189,7 +207,7 @@ def mostrar_pistas(juego):
             Y_PIZARRON_ROJO + Y_TEXTO_PIZARRON,
             fill="red",
             size=18,
-            justify = 'center'
+            justify="center",
         )
 
     if juego.turno.nombre == "azul":
@@ -203,7 +221,7 @@ def mostrar_pistas(juego):
             Y_PIZARRON_AZUL + Y_TEXTO_PIZARRON,
             fill="blue",
             size=18,
-            justify = 'center'
+            justify="center",
         )
 
 
@@ -480,9 +498,8 @@ class Juego:
 
     def agregar_jugadores(self, jugadores):
         """Recibe un string con todos los jugadores, lo transforma a lista y los agrega al juego"""
-        lista_jugadores = jugadores.split(",")
-        for jugador in lista_jugadores:
-            self.agregar_jugador(jugador.strip())
+        for jugador in jugadores:
+            self.agregar_jugador(jugador)
 
     def generar_equipos(self, equipo_rojo, equipo_azul):
         """Recibe dos equipos y asigna los jugadores a cada uno"""
